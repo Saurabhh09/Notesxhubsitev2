@@ -1,0 +1,268 @@
+// NotesXhub data model.
+// SQLite for local development; the schema is Postgres-compatible so the
+// provider can be swapped for production without model changes.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String   @id @default(cuid())
+  name         String
+  email        String   @unique
+  passwordHash String
+  role         String   @default("STUDENT") // STUDENT | ADMIN
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  orders        Order[]
+  entitlements  Entitlement[]
+  downloads     DownloadRecord[]
+  resetTokens   PasswordResetToken[]
+  events        AnalyticsEvent[]
+
+  @@index([role])
+}
+
+model PasswordResetToken {
+  id        String   @id @default(cuid())
+  userId    String
+  tokenHash String   @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model Category {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  slug      String   @unique
+  tagline   String
+  intro     String
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+
+  products ProductCategory[]
+
+  @@index([sortOrder])
+}
+
+model Subject {
+  id       String @id @default(cuid())
+  name     String @unique
+  slug     String @unique
+
+  products Product[]
+}
+
+model Product {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  description String
+  longDescription String?
+  topics      String   @default("[]") // JSON array of topic strings
+  includes    String   @default("[]") // JSON array of "what's included"
+  audience    String?
+  pageCount   Int?
+  fileFormat  String   @default("PDF")
+  priceInPaise Int                    // integer minor units, never a float
+  compareAtPaise Int?                 // original price, for the discount badge
+  status      String   @default("DRAFT") // DRAFT | PUBLISHED | ARCHIVED
+  featured    Boolean  @default(false)
+  subjectId   String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  subject      Subject?          @relation(fields: [subjectId], references: [id])
+  categories   ProductCategory[]
+  files        ProductFile[]
+  bundleItems  BundleItem[]
+  orderItems   OrderItem[]
+  entitlements Entitlement[]
+  downloads    DownloadRecord[]
+
+  @@index([status, featured])
+  @@index([subjectId])
+}
+
+model ProductCategory {
+  productId  String
+  categoryId String
+
+  product  Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  category Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@id([productId, categoryId])
+  @@index([categoryId])
+}
+
+model ProductFile {
+  id        String   @id @default(cuid())
+  productId String
+  // COVER | PREVIEW_1 | PREVIEW_2 | PREVIEW_PDF | FULL_PDF
+  type      String
+  // Path relative to the private storage root, or /public path for covers.
+  storageKey String
+  mimeType  String
+  byteSize  Int      @default(0)
+  width     Int?
+  height    Int?
+  createdAt DateTime @default(now())
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([productId, type])
+  @@index([productId])
+}
+
+model Bundle {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  description String
+  coverPath   String?
+  priceInPaise Int
+  status      String   @default("DRAFT") // DRAFT | PUBLISHED | ARCHIVED
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  items      BundleItem[]
+  orderItems OrderItem[]
+
+  @@index([status])
+}
+
+model BundleItem {
+  bundleId  String
+  productId String
+  sortOrder Int    @default(0)
+
+  bundle  Bundle  @relation(fields: [bundleId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@id([bundleId, productId])
+  @@index([productId])
+}
+
+model Order {
+  id             String   @id @default(cuid())
+  reference      String   @unique // human-facing order number
+  userId         String
+  amountInPaise  Int
+  currency       String   @default("INR")
+  status         String   @default("CREATED") // CREATED | PAID | FAILED | REFUNDED
+  razorpayOrderId String? @unique
+  notes          String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  paidAt         DateTime?
+
+  user         User        @relation(fields: [userId], references: [id])
+  items        OrderItem[]
+  payments     Payment[]
+  entitlements Entitlement[]
+
+  @@index([userId, status])
+  @@index([createdAt])
+}
+
+model OrderItem {
+  id            String  @id @default(cuid())
+  orderId       String
+  productId     String?
+  bundleId      String?
+  titleSnapshot String
+  priceInPaise  Int
+
+  order   Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product Product? @relation(fields: [productId], references: [id])
+  bundle  Bundle?  @relation(fields: [bundleId], references: [id])
+
+  @@index([orderId])
+}
+
+model Payment {
+  id                String   @id @default(cuid())
+  orderId           String
+  razorpayPaymentId String   @unique
+  razorpayOrderId   String
+  razorpaySignature String?
+  method            String?
+  amountInPaise     Int
+  status            String // CAPTURED | FAILED | PENDING
+  verifiedVia       String // CHECKOUT_SIGNATURE | WEBHOOK
+  rawEvent          String?
+  createdAt         DateTime @default(now())
+
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@index([orderId])
+}
+
+model WebhookEvent {
+  id         String   @id @default(cuid())
+  eventId    String   @unique // Razorpay x-razorpay-event-id, for idempotency
+  eventType  String
+  payload    String
+  processedAt DateTime @default(now())
+}
+
+model Entitlement {
+  id            String   @id @default(cuid())
+  userId        String
+  productId     String
+  sourceOrderId String?
+  grantedAt     DateTime @default(now())
+
+  user   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  order  Order?  @relation(fields: [sourceOrderId], references: [id])
+
+  // One entitlement per user per product: the guard against duplicate grants.
+  @@unique([userId, productId])
+  @@index([userId])
+}
+
+model DownloadRecord {
+  id        String   @id @default(cuid())
+  userId    String
+  productId String
+  ipHash    String?
+  userAgent String?
+  createdAt DateTime @default(now())
+
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+  @@index([productId])
+}
+
+model AnalyticsEvent {
+  id        String   @id @default(cuid())
+  name      String
+  userId    String?
+  productId String?
+  bundleId  String?
+  meta      String?
+  createdAt DateTime @default(now())
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([name, createdAt])
+}
+
+model SiteSetting {
+  key   String @id
+  value String
+}

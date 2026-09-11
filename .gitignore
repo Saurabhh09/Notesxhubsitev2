@@ -1,0 +1,22 @@
+node_modules/
+.next/
+out/
+build/
+
+# Secrets — never commit
+.env
+.env.local
+.env*.local
+
+# Local database
+*.db
+*.db-journal
+prisma/dev.db*
+
+# Paid product files. These must never reach a public repo or /public.
+storage/
+
+.DS_Store
+*.log
+next-env.d.ts
+tsconfig.tsbuildinfo

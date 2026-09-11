@@ -1,0 +1,151 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── Reset & base ────────────────────────────────────────────────────────── */
+@layer base {
+  :root {
+    --color-ink-700: #17457A;
+    --color-paper-50: #FCFBF8;
+    --color-paper-100: #F6F3ED;
+    --color-brass-500: #B08A2E;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    @apply bg-paper-50 text-graphite-700 font-sans;
+  }
+
+  ::selection {
+    background-color: #17457A;
+    color: #F6F3ED;
+  }
+
+  /* Reduce motion for users who prefer it */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+/* ── Component utilities ─────────────────────────────────────────────────── */
+@layer components {
+  .container-page {
+    @apply mx-auto w-full max-w-content px-5 sm:px-6 lg:px-8;
+  }
+
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg
+           bg-ink-700 px-6 py-3 text-sm font-semibold text-white
+           shadow-sm transition-all duration-200
+           hover:bg-ink-600 hover:shadow-md
+           focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink-500 focus-visible:ring-offset-2
+           active:scale-[0.97] disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg
+           border border-ink-200 bg-white px-6 py-3 text-sm font-semibold text-ink-700
+           shadow-sm transition-all duration-200
+           hover:bg-ink-50 hover:border-ink-300 hover:shadow-md
+           focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ink-500 focus-visible:ring-offset-2
+           active:scale-[0.97];
+  }
+
+  .btn-accent {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg
+           bg-brass-500 px-6 py-3 text-sm font-semibold text-white
+           shadow-sm transition-all duration-200
+           hover:bg-brass-600 hover:shadow-md
+           focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brass-400 focus-visible:ring-offset-2
+           active:scale-[0.97];
+  }
+
+  .card {
+    @apply rounded-xl border border-paper-200 bg-white shadow-card
+           transition-all duration-300
+           hover:shadow-lift hover:-translate-y-0.5;
+  }
+
+  .input-field {
+    @apply w-full rounded-lg border border-paper-300 bg-white px-4 py-2.5
+           text-sm text-graphite-700 placeholder:text-graphite-400
+           transition-colors duration-200
+           focus:border-ink-400 focus:outline-none focus:ring-2 focus:ring-ink-200;
+  }
+
+  .label {
+    @apply block text-sm font-medium text-graphite-600 mb-1.5;
+  }
+
+  .section-heading {
+    @apply font-display text-3xl font-bold tracking-tight text-ink-800 sm:text-4xl;
+  }
+
+  .section-subheading {
+    @apply mt-3 text-lg text-graphite-500 max-w-2xl;
+  }
+
+  .badge {
+    @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium;
+  }
+
+  .badge-category {
+    @apply badge bg-ink-50 text-ink-600;
+  }
+
+  .badge-discount {
+    @apply badge bg-green-50 text-green-700;
+  }
+
+  .badge-price {
+    @apply badge bg-brass-300/20 text-brass-600 font-semibold;
+  }
+}
+
+/* ── Scroll reveal animation ─────────────────────────────────────────────── */
+@layer utilities {
+  .animate-on-scroll {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.6s cubic-bezier(0.22, 1, 0.36, 1),
+                transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .animate-on-scroll.visible {
+    opacity: 1;
+    transform: none;
+  }
+
+  /* Stagger delay utilities for child elements */
+  .stagger-1 { transition-delay: 0.05s; }
+  .stagger-2 { transition-delay: 0.1s; }
+  .stagger-3 { transition-delay: 0.15s; }
+  .stagger-4 { transition-delay: 0.2s; }
+  .stagger-5 { transition-delay: 0.25s; }
+}
+
+/* ── Scrollbar styling ───────────────────────────────────────────────────── */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #F6F3ED;
+}
+::-webkit-scrollbar-thumb {
+  background: #C4BBA7;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #8A8B8E;
+}
