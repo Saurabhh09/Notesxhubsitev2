@@ -3,7 +3,9 @@ import { cookies } from 'next/headers'
 import { prisma } from './prisma'
 import bcrypt from 'bcryptjs'
 
-const SESSION_SECRET = new TextEncoder().encode(process.env.SESSION_SECRET || '')
+const SESSION_SECRET = new TextEncoder().encode(
+  process.env.SESSION_SECRET || 'notesxhub_session_secret_key_at_least_32_characters_long'
+)
 const COOKIE_NAME = 'nxh_session'
 const MAX_AGE = 60 * 60 * 24 * 30 // 30 days
 

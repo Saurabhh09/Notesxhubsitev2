@@ -1,7 +1,9 @@
 import { SignJWT, jwtVerify } from 'jose'
 import path from 'node:path'
 
-const SECRET = new TextEncoder().encode(process.env.DOWNLOAD_TOKEN_SECRET || '')
+const SECRET = new TextEncoder().encode(
+  process.env.DOWNLOAD_TOKEN_SECRET || 'notesxhub_download_token_secret_key_32_chars'
+)
 const STORAGE_DIR = process.env.PRIVATE_STORAGE_DIR || './storage'
 
 /** Time-limited signed download token (5 min default). */

@@ -1,0 +1,8 @@
+{
+  "name": "NotesXhub",
+  "description": "High-quality handwritten notes for Class 10, 11, 12, JEE Main & JEE Advanced. Preview before you buy, instant PDF download after purchase.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
