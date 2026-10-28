@@ -15,7 +15,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params
   const bundle = await prisma.bundle.findUnique({ where: { slug }, select: { name: true, description: true } })
   if (!bundle) return { title: 'Bundle Not Found' }
-  return { title: bundle.name, description: bundle.description }
+  return { title: `${bundle.name} | NotesXhub`, description: bundle.description }
 }
 
 export default async function BundlePage({ params }: Props) {
@@ -45,76 +45,125 @@ export default async function BundlePage({ params }: Props) {
   const savingsPercent = discountPercent(totalValue, bundle.priceInPaise)
 
   return (
-    <div className="py-10 lg:py-16">
+    <div className="py-8 sm:py-12 lg:py-16">
       <div className="container-page max-w-4xl">
-        <div className="badge-price mb-4">Bundle Offer</div>
-        <h1 className="font-display text-3xl lg:text-4xl font-bold text-ink-800 tracking-tight">
-          {bundle.name}
-        </h1>
-        <p className="mt-3 text-graphite-500 leading-relaxed max-w-2xl">{bundle.description}</p>
+        {/* Breadcrumb */}
+        <div className="flex items-center gap-2 text-xs font-semibold text-slate-500 mb-6">
+          <Link href="/" className="hover:text-sky-600 transition-colors">Home</Link>
+          <span>/</span>
+          <Link href="/notes" className="hover:text-sky-600 transition-colors">Bundles</Link>
+          <span>/</span>
+          <span className="text-ink-900 font-bold">{bundle.name}</span>
+        </div>
+
+        {/* Bundle Banner */}
+        <div className="rounded-3xl bg-gradient-to-br from-[#FFF4D3] via-[#FFF8E7] to-[#E8F3FF] border border-[#FFE7A5] p-6 sm:p-10 mb-10 shadow-xs relative overflow-hidden">
+          <div className="flex flex-wrap items-center gap-2 mb-3">
+            <span className="px-3 py-1 rounded-full text-xs font-extrabold bg-amber-100 text-amber-900 border border-amber-200">
+              ⚡ Special Value Bundle
+            </span>
+            <span className="px-3 py-1 rounded-full text-xs font-extrabold bg-emerald-500 text-white shadow-xs">
+              Save {savingsPercent}% ({formatPrice(totalValue - bundle.priceInPaise)})
+            </span>
+          </div>
+
+          <h1 className="font-display text-3xl sm:text-4xl lg:text-5xl font-extrabold text-ink-900 tracking-tight leading-tight">
+            {bundle.name}
+          </h1>
+          <p className="mt-3 text-base text-slate-700 font-medium max-w-2xl leading-relaxed">
+            {bundle.description}
+          </p>
+        </div>
 
         {/* Included products */}
-        <div className="mt-10 space-y-4">
-          <h2 className="text-sm font-semibold text-graphite-400 uppercase tracking-wider">
-            3 Notes Included
-          </h2>
+        <div className="mb-10 space-y-4">
+          <div className="flex items-center justify-between">
+            <h2 className="text-xs font-extrabold text-slate-400 uppercase tracking-wider">
+              {bundle.items.length} Notes Included in this Bundle
+            </h2>
+            <span className="text-xs font-bold text-emerald-600">
+              ✓ All 3 instant unlocked together
+            </span>
+          </div>
+
           {bundle.items.map((item, i) => (
             <Link
               key={item.productId}
               href={`/notes/${item.product.slug}`}
-              className="card !hover:translate-y-0 overflow-hidden flex flex-row group"
+              className="group flex rounded-2xl bg-white border border-[#E9DFCB] shadow-xs hover:shadow-md hover:-translate-y-0.5 transition-all p-3 sm:p-4 items-center gap-4"
             >
-              <div className="w-20 sm:w-24 shrink-0 bg-paper-100">
+              <div className="w-16 sm:w-20 aspect-[3/4] rounded-xl overflow-hidden bg-cream-50 border border-slate-100 shrink-0">
                 {item.product.files[0]?.storageKey ? (
                   <Image
                     src={item.product.files[0].storageKey}
                     alt={item.product.name}
-                    width={96}
-                    height={128}
-                    className="w-full h-full object-cover"
+                    width={80}
+                    height={106}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform"
                   />
                 ) : (
-                  <div className="w-full h-32 flex items-center justify-center text-graphite-400">
-                    {i + 1}
+                  <div className="w-full h-full flex items-center justify-center text-xs text-slate-400">
+                    #{i + 1}
                   </div>
                 )}
               </div>
-              <div className="flex-1 p-4 flex items-center justify-between min-w-0 gap-4">
-                <div className="min-w-0">
-                  <div className="flex items-center gap-2 mb-1">
-                    {item.product.categories[0] && (
-                      <span className="badge-category text-[10px]">
-                        {item.product.categories[0].category.name}
-                      </span>
-                    )}
-                    {item.product.subject && (
-                      <span className="text-xs text-graphite-400">{item.product.subject.name}</span>
-                    )}
-                  </div>
-                  <h3 className="font-semibold text-sm text-ink-700 truncate group-hover:text-ink-500 transition-colors">
-                    {item.product.name}
-                  </h3>
+
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 mb-1">
+                  {item.product.categories[0] && (
+                    <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-sky-50 text-sky-700 border border-sky-100">
+                      {item.product.categories[0].category.name}
+                    </span>
+                  )}
+                  {item.product.subject && (
+                    <span className="text-xs font-medium text-slate-400">
+                      {item.product.subject.name}
+                    </span>
+                  )}
                 </div>
-                <p className="text-sm font-bold text-graphite-400 line-through shrink-0">
+                <h3 className="font-bold text-sm sm:text-base text-ink-900 group-hover:text-sky-600 transition-colors line-clamp-1">
+                  {item.product.name}
+                </h3>
+                <p className="text-xs text-slate-500 mt-0.5 line-clamp-1">
+                  {item.product.description}
+                </p>
+              </div>
+
+              <div className="text-right shrink-0">
+                <p className="text-xs text-slate-400 line-through">
                   {formatPrice(item.product.priceInPaise)}
                 </p>
+                <span className="text-xs font-bold text-sky-600 group-hover:underline">
+                  Inspect →
+                </span>
               </div>
             </Link>
           ))}
         </div>
 
-        {/* Pricing summary */}
-        <div className="mt-10 rounded-2xl bg-gradient-to-br from-ink-50 to-paper-100 border border-ink-100 p-8">
-          <div className="flex flex-wrap items-end justify-between gap-6">
-            <div>
-              <p className="text-sm text-graphite-400 mb-1">Individual total</p>
-              <p className="text-xl text-graphite-400 line-through">{formatPrice(totalValue)}</p>
-              <p className="text-3xl font-bold text-ink-700 mt-1">{formatPrice(bundle.priceInPaise)}</p>
-              <span className="badge-discount mt-2">
-                Save {savingsPercent}% — {formatPrice(totalValue - bundle.priceInPaise)} off
+        {/* Pricing & Checkout Summary Box */}
+        <div className="rounded-3xl bg-white border border-[#E9DFCB] p-6 sm:p-8 shadow-card flex flex-col sm:flex-row items-center justify-between gap-6">
+          <div>
+            <p className="text-xs font-bold uppercase tracking-wider text-slate-400">
+              Bundle Deal Price
+            </p>
+            <div className="flex items-baseline gap-3 mt-1">
+              <span className="text-3xl sm:text-4xl font-black text-ink-900">
+                {formatPrice(bundle.priceInPaise)}
+              </span>
+              <span className="text-lg text-slate-400 line-through">
+                {formatPrice(totalValue)}
+              </span>
+              <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800">
+                Save {savingsPercent}%
               </span>
             </div>
+            <p className="text-xs text-slate-500 font-medium mt-1">
+              Full lifetime download access for all included items.
+            </p>
+          </div>
 
+          <div className="w-full sm:w-auto shrink-0">
             <BundleBuyButton
               bundleId={bundle.id}
               bundleName={bundle.name}

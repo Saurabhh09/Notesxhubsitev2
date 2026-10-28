@@ -43,22 +43,25 @@ export default function LoginPage() {
               alt="NotesXhub"
               width={220}
               height={70}
-              className="mx-auto mb-4 h-12 w-auto object-contain"
+              className="mx-auto mb-4 h-11 w-auto object-contain"
             />
           </Link>
-          <h1 className="font-display text-2xl font-bold text-ink-800">Welcome back</h1>
-          <p className="mt-2 text-sm text-graphite-500">Sign in to access your purchased notes</p>
+          <div className="inline-block px-3 py-1 rounded-full text-xs font-bold bg-[#FFE959] text-ink-900 border border-[#F2DE44] mb-2">
+            ✏️ Student Login
+          </div>
+          <h1 className="font-display text-2xl sm:text-3xl font-extrabold text-ink-900">Welcome back</h1>
+          <p className="mt-1 text-xs sm:text-sm text-slate-500 font-medium">Sign in to access your purchased notes & library</p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-5 bg-white rounded-2xl border border-paper-200 shadow-card p-8">
+        <form onSubmit={handleSubmit} className="space-y-4 bg-white rounded-3xl border border-[#E9DFCB] shadow-card p-6 sm:p-8">
           {error && (
-            <div className="p-3 rounded-lg bg-red-50 border border-red-200 text-sm text-red-700">
+            <div className="p-3 rounded-2xl bg-rose-50 border border-rose-200 text-xs font-semibold text-rose-700">
               {error}
             </div>
           )}
 
           <div>
-            <label htmlFor="email" className="label">Email</label>
+            <label htmlFor="email" className="block text-xs font-bold text-slate-600 mb-1">Email Address</label>
             <input
               id="email"
               type="email"
@@ -72,7 +75,7 @@ export default function LoginPage() {
           </div>
 
           <div>
-            <label htmlFor="password" className="label">Password</label>
+            <label htmlFor="password" className="block text-xs font-bold text-slate-600 mb-1">Password</label>
             <input
               id="password"
               type="password"
@@ -85,15 +88,15 @@ export default function LoginPage() {
             />
           </div>
 
-          <button type="submit" disabled={loading} className="btn-primary w-full !py-3">
-            {loading ? 'Signing in…' : 'Sign In'}
+          <button type="submit" disabled={loading} className="btn-primary w-full !py-3 font-bold text-sm shadow-md mt-2">
+            {loading ? 'Signing in…' : 'Sign In to Library'}
           </button>
         </form>
 
-        <p className="mt-6 text-center text-sm text-graphite-500">
-          Don&apos;t have an account?{' '}
-          <Link href="/signup" className="font-semibold text-ink-600 hover:text-ink-500 transition-colors">
-            Sign up
+        <p className="mt-6 text-center text-xs sm:text-sm text-slate-500 font-medium">
+          Don&apos;t have an account yet?{' '}
+          <Link href="/signup" className="font-bold text-sky-600 hover:text-sky-700 transition-colors">
+            Create an account
           </Link>
         </p>
       </div>

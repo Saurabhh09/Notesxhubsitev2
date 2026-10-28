@@ -3,15 +3,20 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { useState, useEffect } from 'react'
-import { CATEGORIES } from '@/lib/constants'
+import { useRouter, usePathname } from 'next/navigation'
 
 export function Header() {
   const [open, setOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
+  const [searchOpen, setSearchOpen] = useState(false)
+  const [searchQuery, setSearchQuery] = useState('')
   const [user, setUser] = useState<{ name: string; role: string } | null>(null)
+  const router = useRouter()
+  const pathname = usePathname()
+  const isHome = pathname === '/'
 
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 10)
+    const onScroll = () => setScrolled(window.scrollY > 20)
     window.addEventListener('scroll', onScroll, { passive: true })
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
@@ -23,142 +28,285 @@ export function Header() {
       .catch(() => {})
   }, [])
 
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (searchQuery.trim()) {
+      router.push(`/notes?q=${encodeURIComponent(searchQuery.trim())}`)
+      setSearchOpen(false)
+    }
+  }
+
   return (
     <header
-      className={`sticky top-0 z-50 transition-all duration-300 ${
-        scrolled
-          ? 'bg-white/95 backdrop-blur-md shadow-sm border-b border-paper-200'
-          : 'bg-white border-b border-paper-100'
+      className={`z-50 transition-all duration-300 px-3 sm:px-6 pt-3 sm:pt-4 pb-2 ${
+        isHome ? 'fixed top-0 left-0 right-0' : 'sticky top-0'
       }`}
     >
-      <div className="container-page flex items-center justify-between h-16 lg:h-[72px]">
-        {/* Logo */}
-        <Link href="/" className="flex items-center shrink-0 py-1">
+      <div
+        className={`mx-auto max-w-6xl rounded-full transition-all duration-300 px-4 sm:px-6 py-2.5 sm:py-3 flex items-center justify-between ${
+          scrolled
+            ? 'bg-white/95 backdrop-blur-md shadow-[0_8px_30px_rgb(0,0,0,0.1)] border border-slate-200/80'
+            : 'bg-white shadow-[0_4px_24px_rgba(16,27,61,0.08)] border border-slate-100'
+        }`}
+      >
+        {/* Real Brand Logo */}
+        <Link href="/" className="flex items-center shrink-0 pr-2 group">
           <Image
             src="/brand/logo-full.webp"
-            alt="NotesXhub - Your Hub for Handwritten Notes"
-            width={260}
-            height={80}
+            alt="NotesXhub"
+            width={200}
+            height={60}
             priority
-            className="h-9 sm:h-11 w-auto object-contain"
+            className="h-8 sm:h-9 w-auto object-contain transition-transform group-hover:scale-102"
           />
         </Link>
 
-        {/* Desktop Nav */}
-        <nav className="hidden lg:flex items-center gap-1">
+        {/* Desktop Navigation Links */}
+        <nav className="hidden lg:flex items-center gap-1 xl:gap-2">
           <Link
             href="/notes"
-            className="px-3 py-2 text-sm font-medium text-graphite-600 rounded-lg hover:bg-ink-50 hover:text-ink-700 transition-colors"
+            className="px-3.5 py-1.5 text-sm font-medium text-slate-600 rounded-full hover:bg-slate-100 hover:text-ink-900 transition-colors"
           >
-            Browse Notes
+            Explore
           </Link>
-          {CATEGORIES.map((c) => (
-            <Link
-              key={c.slug}
-              href={`/category/${c.slug}`}
-              className="px-3 py-2 text-sm font-medium text-graphite-500 rounded-lg hover:bg-ink-50 hover:text-ink-700 transition-colors"
-            >
-              {c.name}
-            </Link>
-          ))}
+          <Link
+            href="/category/class-12"
+            className="px-3.5 py-1.5 text-sm font-medium text-slate-600 rounded-full hover:bg-slate-100 hover:text-ink-900 transition-colors"
+          >
+            Board Notes
+          </Link>
+          <Link
+            href="/category/jee-main"
+            className="px-3.5 py-1.5 text-sm font-medium text-slate-600 rounded-full hover:bg-slate-100 hover:text-ink-900 transition-colors"
+          >
+            Competitive Exams
+          </Link>
+          <Link
+            href="/bundles/physics-essentials-bundle"
+            className="px-3.5 py-1.5 text-sm font-medium text-slate-600 rounded-full hover:bg-slate-100 hover:text-ink-900 transition-colors"
+          >
+            Bundles
+          </Link>
+          <Link
+            href="/notes?category=quick-revision"
+            className="px-3.5 py-1.5 text-sm font-medium text-slate-600 rounded-full hover:bg-slate-100 hover:text-ink-900 transition-colors"
+          >
+            Quick Revision
+          </Link>
         </nav>
 
-        {/* Desktop Auth */}
-        <div className="hidden lg:flex items-center gap-3">
+        {/* Desktop Actions */}
+        <div className="hidden lg:flex items-center gap-2.5">
+          {/* Quick Search Toggle / Input */}
+          <div className="relative">
+            {searchOpen ? (
+              <form onSubmit={handleSearchSubmit} className="flex items-center">
+                <input
+                  type="text"
+                  placeholder="Search notes..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  autoFocus
+                  onBlur={() => !searchQuery && setSearchOpen(false)}
+                  className="w-48 pl-8 pr-3 py-1.5 text-xs rounded-full border border-sky-300 focus:outline-none focus:ring-2 focus:ring-sky-200 bg-slate-50"
+                />
+                <button
+                  type="submit"
+                  aria-label="Search"
+                  className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-sky-600"
+                >
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                    <circle cx="11" cy="11" r="8" />
+                    <path d="M21 21l-4.35-4.35" />
+                  </svg>
+                </button>
+              </form>
+            ) : (
+              <button
+                onClick={() => setSearchOpen(true)}
+                className="w-9 h-9 rounded-full flex items-center justify-center text-slate-500 hover:bg-slate-100 hover:text-ink-900 transition-colors"
+                aria-label="Search notes"
+              >
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                  <circle cx="11" cy="11" r="8" />
+                  <path d="M21 21l-4.35-4.35" />
+                </svg>
+              </button>
+            )}
+          </div>
+
           {user ? (
-            <>
+            <div className="flex items-center gap-2">
               {user.role === 'ADMIN' && (
-                <Link href="/admin" className="text-sm text-brass-600 font-medium hover:text-brass-500 transition-colors">
+                <Link
+                  href="/admin"
+                  className="px-3 py-1.5 text-xs font-semibold text-amber-700 bg-amber-50 border border-amber-200 rounded-full hover:bg-amber-100 transition-colors"
+                >
                   Admin
                 </Link>
               )}
-              <Link href="/library" className="text-sm text-graphite-600 font-medium hover:text-ink-700 transition-colors">
+              <Link
+                href="/library"
+                className="px-3.5 py-1.5 text-sm font-medium text-slate-600 hover:text-ink-900 transition-colors"
+              >
                 My Library
               </Link>
-              <Link href="/dashboard" className="btn-secondary !py-2 !px-4 !text-xs">
+              <Link
+                href="/dashboard"
+                className="btn-dark !py-2 !px-4 !text-xs"
+              >
                 {user.name.split(' ')[0]}
               </Link>
-            </>
+            </div>
           ) : (
-            <>
-              <Link href="/login" className="text-sm text-graphite-600 font-medium hover:text-ink-700 transition-colors">
+            <div className="flex items-center gap-2">
+              <Link
+                href="/login"
+                className="px-3.5 py-1.5 text-sm font-medium text-slate-600 hover:text-ink-900 transition-colors"
+              >
                 Log in
               </Link>
-              <Link href="/signup" className="btn-primary !py-2 !px-4 !text-xs">
-                Sign up
+              <Link
+                href="/signup"
+                className="btn-dark !py-2 !px-5 !text-xs font-semibold shadow-sm hover:shadow"
+              >
+                Get Started
               </Link>
-            </>
+            </div>
           )}
         </div>
 
-        {/* Mobile menu button */}
-        <button
-          onClick={() => setOpen(!open)}
-          className="lg:hidden p-2 rounded-lg text-graphite-600 hover:bg-ink-50 transition-colors"
-          aria-label={open ? 'Close menu' : 'Open menu'}
-        >
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+        {/* Mobile menu and search toggle */}
+        <div className="flex lg:hidden items-center gap-1.5">
+          <Link
+            href="/notes"
+            className="p-2 text-slate-600 hover:text-sky-600"
+            aria-label="Search notes"
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+              <circle cx="11" cy="11" r="8" />
+              <path d="M21 21l-4.35-4.35" />
+            </svg>
+          </Link>
+          <button
+            onClick={() => setOpen(!open)}
+            className="p-2 rounded-full text-slate-700 hover:bg-slate-100 transition-colors"
+            aria-label={open ? 'Close navigation menu' : 'Open navigation menu'}
+          >
             {open ? (
-              <path d="M18 6L6 18M6 6l12 12" />
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M18 6L6 18M6 6l12 12" />
+              </svg>
             ) : (
-              <path d="M4 6h16M4 12h16M4 18h16" />
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
             )}
-          </svg>
-        </button>
+          </button>
+        </div>
       </div>
 
-      {/* Mobile Drawer */}
+      {/* Mobile Drawer Dropdown */}
       {open && (
-        <div className="lg:hidden border-t border-paper-200 bg-white animate-fade-in">
-          <nav className="container-page py-4 flex flex-col gap-1">
+        <div className="lg:hidden mx-auto max-w-6xl mt-2 rounded-3xl bg-white/98 backdrop-blur-md border border-slate-200/80 shadow-xl p-5 animate-in fade-in slide-in-from-top-2 duration-200">
+          <form onSubmit={handleSearchSubmit} className="mb-4 relative">
+            <input
+              type="search"
+              placeholder="Search notes (Physics, Class 12, JEE...)"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-10 pr-4 py-2.5 rounded-full border border-slate-200 bg-slate-50 text-sm focus:outline-none focus:ring-2 focus:ring-sky-300"
+            />
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"
+            >
+              <circle cx="11" cy="11" r="8" />
+              <path d="M21 21l-4.35-4.35" />
+            </svg>
+          </form>
+
+          <nav className="flex flex-col space-y-1 font-medium text-slate-700 text-sm">
             <Link
               href="/notes"
               onClick={() => setOpen(false)}
-              className="px-3 py-2.5 text-sm font-medium text-graphite-700 rounded-lg hover:bg-ink-50 transition-colors"
+              className="px-4 py-2.5 rounded-xl hover:bg-slate-100 flex items-center justify-between"
             >
-              Browse Notes
+              <span>Explore All Notes</span>
+              <span className="text-xs text-sky-600 font-semibold">Browse →</span>
             </Link>
-            {CATEGORIES.map((c) => (
-              <Link
-                key={c.slug}
-                href={`/category/${c.slug}`}
-                onClick={() => setOpen(false)}
-                className="px-3 py-2.5 text-sm text-graphite-600 rounded-lg hover:bg-ink-50 transition-colors"
-              >
-                {c.name}
-              </Link>
-            ))}
+            <Link
+              href="/category/class-12"
+              onClick={() => setOpen(false)}
+              className="px-4 py-2.5 rounded-xl hover:bg-slate-100"
+            >
+              Board Notes (Class 10, 11, 12)
+            </Link>
+            <Link
+              href="/category/jee-main"
+              onClick={() => setOpen(false)}
+              className="px-4 py-2.5 rounded-xl hover:bg-slate-100"
+            >
+              Competitive Exams (JEE & NEET)
+            </Link>
+            <Link
+              href="/bundles/physics-essentials-bundle"
+              onClick={() => setOpen(false)}
+              className="px-4 py-2.5 rounded-xl hover:bg-slate-100"
+            >
+              Bundle Offers
+            </Link>
+            <Link
+              href="/notes?category=quick-revision"
+              onClick={() => setOpen(false)}
+              className="px-4 py-2.5 rounded-xl hover:bg-slate-100"
+            >
+              Quick Revision & Formula Sheets
+            </Link>
+          </nav>
 
-            <hr className="my-2 border-paper-200" />
-
+          <div className="mt-5 pt-4 border-t border-slate-100 flex flex-col gap-2">
             {user ? (
               <>
-                <Link href="/library" onClick={() => setOpen(false)} className="px-3 py-2.5 text-sm font-medium text-graphite-700 rounded-lg hover:bg-ink-50 transition-colors">
+                <Link
+                  href="/library"
+                  onClick={() => setOpen(false)}
+                  className="w-full text-center py-2.5 rounded-full font-semibold text-sm bg-slate-100 text-ink-800"
+                >
                   My Library
                 </Link>
-                <Link href="/dashboard" onClick={() => setOpen(false)} className="px-3 py-2.5 text-sm font-medium text-graphite-700 rounded-lg hover:bg-ink-50 transition-colors">
-                  Dashboard
+                <Link
+                  href="/dashboard"
+                  onClick={() => setOpen(false)}
+                  className="w-full text-center py-2.5 rounded-full font-semibold text-sm btn-dark"
+                >
+                  Dashboard ({user.name.split(' ')[0]})
                 </Link>
-                <Link href="/orders" onClick={() => setOpen(false)} className="px-3 py-2.5 text-sm font-medium text-graphite-700 rounded-lg hover:bg-ink-50 transition-colors">
-                  My Orders
-                </Link>
-                {user.role === 'ADMIN' && (
-                  <Link href="/admin" onClick={() => setOpen(false)} className="px-3 py-2.5 text-sm font-medium text-brass-600 rounded-lg hover:bg-brass-300/10 transition-colors">
-                    Admin Panel
-                  </Link>
-                )}
               </>
             ) : (
-              <div className="flex gap-3 mt-2 px-3">
-                <Link href="/login" onClick={() => setOpen(false)} className="btn-secondary flex-1 !text-xs">
+              <div className="grid grid-cols-2 gap-2">
+                <Link
+                  href="/login"
+                  onClick={() => setOpen(false)}
+                  className="w-full text-center py-2.5 rounded-full font-semibold text-sm border border-slate-200 text-slate-700 hover:bg-slate-50"
+                >
                   Log in
                 </Link>
-                <Link href="/signup" onClick={() => setOpen(false)} className="btn-primary flex-1 !text-xs">
-                  Sign up
+                <Link
+                  href="/signup"
+                  onClick={() => setOpen(false)}
+                  className="w-full text-center py-2.5 rounded-full font-semibold text-sm btn-dark"
+                >
+                  Get Started
                 </Link>
               </div>
             )}
-          </nav>
+          </div>
         </div>
       )}
     </header>

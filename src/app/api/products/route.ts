@@ -21,6 +21,9 @@ export async function GET(req: NextRequest) {
     where.OR = [
       { name: { contains: search } },
       { description: { contains: search } },
+      { subject: { name: { contains: search } } },
+      { categories: { some: { category: { name: { contains: search } } } } },
+      { topics: { contains: search } },
     ]
   }
   if (featured === 'true') {

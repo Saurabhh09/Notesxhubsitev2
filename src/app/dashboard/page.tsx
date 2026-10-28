@@ -7,7 +7,7 @@ import { LogoutButton } from './LogoutButton'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Dashboard',
+  title: 'Student Dashboard | NotesXhub',
 }
 
 export default async function DashboardPage() {
@@ -26,74 +26,108 @@ export default async function DashboardPage() {
   ])
 
   return (
-    <div className="py-10 lg:py-16">
+    <div className="py-8 sm:py-12 lg:py-16">
       <div className="container-page max-w-4xl">
         {/* Profile header */}
-        <div className="flex items-center justify-between mb-10 flex-wrap gap-4">
+        <div className="flex items-center justify-between mb-8 pb-6 border-b border-slate-200 flex-wrap gap-4">
           <div>
-            <h1 className="section-heading">Hi, {user.name.split(' ')[0]}! 👋</h1>
-            <p className="text-sm text-graphite-500 mt-1">{user.email}</p>
+            <span className="inline-block px-3 py-1 rounded-full text-xs font-bold bg-[#FFE959] text-ink-900 border border-[#F2DE44] mb-2">
+              👋 Active Student
+            </span>
+            <h1 className="font-display text-2xl sm:text-3xl font-extrabold text-ink-900">
+              Welcome, {user.name.split(' ')[0]}!
+            </h1>
+            <p className="text-xs sm:text-sm text-slate-500 font-medium mt-0.5">{user.email}</p>
           </div>
           <LogoutButton />
         </div>
 
-        {/* Quick stats */}
-        <div className="grid grid-cols-2 gap-4 mb-10">
-          <div className="card p-6 !hover:translate-y-0">
-            <p className="text-sm text-graphite-400 mb-1">Products Owned</p>
-            <p className="text-3xl font-bold text-ink-700">{entitlementCount}</p>
+        {/* Quick stats with pastel cards */}
+        <div className="grid grid-cols-2 gap-4 mb-8">
+          <div className="rounded-3xl bg-[#FFF4D3] border border-[#FFE7A5] p-5 sm:p-6 shadow-xs">
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-xs font-extrabold uppercase tracking-wider text-amber-900">Notes Owned</p>
+              <span className="text-xl">📚</span>
+            </div>
+            <p className="text-3xl sm:text-4xl font-black text-ink-900">{entitlementCount}</p>
+            <Link href="/library" className="inline-block text-xs font-bold text-amber-800 mt-2 hover:underline">
+              View in Library →
+            </Link>
           </div>
-          <div className="card p-6 !hover:translate-y-0">
-            <p className="text-sm text-graphite-400 mb-1">Orders</p>
-            <p className="text-3xl font-bold text-ink-700">{orderCount}</p>
+          <div className="rounded-3xl bg-[#E3F0FF] border border-[#CCE3FE] p-5 sm:p-6 shadow-xs">
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-xs font-extrabold uppercase tracking-wider text-sky-900">Completed Orders</p>
+              <span className="text-xl">🧾</span>
+            </div>
+            <p className="text-3xl sm:text-4xl font-black text-ink-900">{orderCount}</p>
+            <Link href="/orders" className="inline-block text-xs font-bold text-sky-800 mt-2 hover:underline">
+              Order Receipts →
+            </Link>
           </div>
         </div>
 
         {/* Quick links */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-10">
-          <Link href="/library" className="card p-5 !hover:translate-y-0 flex items-center gap-3 group">
-            <div className="w-10 h-10 rounded-lg bg-ink-50 flex items-center justify-center group-hover:bg-ink-100 transition-colors">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-ink-600">
-                <path d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
-              </svg>
+          <Link
+            href="/library"
+            className="group rounded-2xl bg-white border border-[#E9DFCB] p-4 shadow-xs hover:shadow-md hover:-translate-y-0.5 transition-all flex items-center gap-3"
+          >
+            <div className="w-10 h-10 rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center text-lg group-hover:scale-105 transition-transform">
+              📖
             </div>
-            <span className="text-sm font-semibold text-ink-700">My Library</span>
+            <div>
+              <p className="text-xs font-extrabold text-ink-900">My Library</p>
+              <p className="text-[11px] text-slate-500">Download purchased notes</p>
+            </div>
           </Link>
-          <Link href="/orders" className="card p-5 !hover:translate-y-0 flex items-center gap-3 group">
-            <div className="w-10 h-10 rounded-lg bg-ink-50 flex items-center justify-center group-hover:bg-ink-100 transition-colors">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-ink-600">
-                <path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-              </svg>
+          <Link
+            href="/orders"
+            className="group rounded-2xl bg-white border border-[#E9DFCB] p-4 shadow-xs hover:shadow-md hover:-translate-y-0.5 transition-all flex items-center gap-3"
+          >
+            <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-lg group-hover:scale-105 transition-transform">
+              🏷️
             </div>
-            <span className="text-sm font-semibold text-ink-700">My Orders</span>
+            <div>
+              <p className="text-xs font-extrabold text-ink-900">My Orders</p>
+              <p className="text-[11px] text-slate-500">Transaction history</p>
+            </div>
           </Link>
-          <Link href="/notes" className="card p-5 !hover:translate-y-0 flex items-center gap-3 group">
-            <div className="w-10 h-10 rounded-lg bg-ink-50 flex items-center justify-center group-hover:bg-ink-100 transition-colors">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-ink-600">
-                <circle cx="11" cy="11" r="8" /><path d="M21 21l-4.35-4.35" />
-              </svg>
+          <Link
+            href="/notes"
+            className="group rounded-2xl bg-white border border-[#E9DFCB] p-4 shadow-xs hover:shadow-md hover:-translate-y-0.5 transition-all flex items-center gap-3"
+          >
+            <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-lg group-hover:scale-105 transition-transform">
+              🔍
             </div>
-            <span className="text-sm font-semibold text-ink-700">Browse Notes</span>
+            <div>
+              <p className="text-xs font-extrabold text-ink-900">Browse Notes</p>
+              <p className="text-[11px] text-slate-500">Find new study resources</p>
+            </div>
           </Link>
         </div>
 
         {/* Recent orders */}
         {recentOrders.length > 0 && (
           <div>
-            <h2 className="text-lg font-semibold text-ink-700 mb-4">Recent Purchases</h2>
+            <h2 className="text-sm font-extrabold text-slate-400 uppercase tracking-wider mb-3">
+              Recent Orders
+            </h2>
             <div className="space-y-3">
               {recentOrders.map((order) => (
-                <div key={order.id} className="card p-4 !hover:translate-y-0 flex items-center justify-between flex-wrap gap-3">
+                <div
+                  key={order.id}
+                  className="rounded-2xl bg-white border border-[#E9DFCB] p-4 shadow-xs flex items-center justify-between flex-wrap gap-3"
+                >
                   <div>
-                    <p className="text-sm font-semibold text-ink-700">{order.reference}</p>
-                    <p className="text-xs text-graphite-400 mt-0.5">
+                    <span className="text-xs font-extrabold text-ink-900">{order.reference}</span>
+                    <p className="text-xs text-slate-500 mt-0.5">
                       {order.items.map((i) => i.titleSnapshot).join(', ')}
                     </p>
                   </div>
                   <div className="text-right">
-                    <p className="text-sm font-bold text-ink-700">{formatPrice(order.amountInPaise)}</p>
-                    <p className="text-xs text-graphite-400">
-                      {order.paidAt ? new Date(order.paidAt).toLocaleDateString('en-IN') : ''}
+                    <p className="text-sm font-black text-ink-900">{formatPrice(order.amountInPaise)}</p>
+                    <p className="text-[11px] text-emerald-600 font-semibold">
+                      Paid • {order.paidAt ? new Date(order.paidAt).toLocaleDateString('en-IN') : ''}
                     </p>
                   </div>
                 </div>
